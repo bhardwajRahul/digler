@@ -23,6 +23,16 @@ import (
 	"github.com/ostafen/digler/pkg/table"
 )
 
+var DefaultRegistry *FileRegistry
+
+func init() {
+	DefaultRegistry = NewFileRegisty()
+
+	for _, sc := range GetAllFileScanners() {
+		DefaultRegistry.Add(sc)
+	}
+}
+
 type FileRegistry struct {
 	table *table.PrefixTable[scanners]
 }

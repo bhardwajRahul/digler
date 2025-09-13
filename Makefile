@@ -30,7 +30,7 @@ COMMIT_HASH := $(shell git rev-parse HEAD)
 # Get build time in ISO8601 format
 BUILD_TIME := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-.PHONY: all build clean version
+.PHONY: all build build-ui wails-build clean version
 
 all: build
 
@@ -43,6 +43,24 @@ build:
 		if [ "$${GOOS}" = "windows" ]; then output_name="$$output_name.exe"; fi; \
 		echo "-> $$output_name"; \
 		GOOS=$$GOOS GOARCH=$$GOARCH go build -ldflags "-X $(ENV_PKG).Version=$(VERSION) -X $(ENV_PKG).CommitHash=$(COMMIT_HASH) -X $(ENV_PKG).BuildTime=$(BUILD_TIME)" -o $(OUTPUT_DIR)/$$output_name $(MAIN_FILE); \
+	done
+
+build-ui:
+	cd frontend && npm run build
+
+wails:
+	go run github.com/wailsapp/wails/v2/cmd/wails
+
+wails-dev:
+	go run github.com/wailsapp/wails/v2/cmd/wails dev
+
+wails-build:
+	go run github.com/wailsapp/wails/v2/cmd/wails build
+
+wails-build-all:
+	@for target in $(TARGETS); do \
+		echo "Building for $$target"; \
+		go run github.com/wailsapp/wails/v2/cmd/wails build -platform $$target; \
 	done
 
 # Default plugin source folder
